@@ -17,9 +17,18 @@ group :development do
   gem "simplecov", "~> 0.9"
   gem "sinatra"
   gem "webmock", "~> 1.21"
+  gem "activerecord", "~> 4.2"
 end
 
 platforms :jruby do
   group :development do
+      gem 'jdbc-sqlite3', '~> 3.8'
+    gem 'activerecord-jdbcsqlite3-adapter', '~> 1.3'
+  end
+end
+
+platforms :ruby do
+  group :development do
+    gem 'sqlite3', '~> 1.3'
   end
 end

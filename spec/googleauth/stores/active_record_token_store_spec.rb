@@ -1,4 +1,4 @@
-# Copyright 2015, Google Inc.
+Copyright 2015, Google Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,34 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-require "googleauth/application_default"
-require "googleauth/client_id"
-require "googleauth/credentials"
-require "googleauth/default_credentials"
-require "googleauth/user_authorizer"
-require "googleauth/web_user_authorizer"
-require 'googleauth/rails/railtie' if defined?(Rails)
+spec_dir = File.expand_path(File.join(File.dirname(__FILE__)))
+$LOAD_PATH.unshift(spec_dir)
+$LOAD_PATH.uniq!
+
+require 'googleauth'
+require 'googleauth/stores/active_record_token_store'
+require 'spec_helper'
+require 'googleauth/stores/store_examples'
+require 'active_record'
+
+describe Google::Auth::Stores::ActiveRecordTokenStore do
+  # Set up an in-memory DB for testing
+  before(:context) do
+    ActiveRecord::Base.establish_connection adapter: 'sqlite3',
+                                            database: ':memory:'
+    ActiveRecord::Schema.define do
+      self.verbose = false
+      create_table :google_auth_tokens do |t|
+        t.string :user_id
+        t.string :token
+      end
+      add_index :google_auth_tokens, :user_id
+    end
+  end
+
+  let(:store) do
+    Google::Auth::Stores::ActiveRecordTokenStore.new
+  end
+
+  it_behaves_like 'token store'
+end
